@@ -27,6 +27,16 @@ struct ContentView: View {
                     SearchScreen()
                 }
             }
+			Tab("Activity", systemImage: "bolt") {
+				NavigationStack {
+					ActivityScreen(username: username)
+				}
+			}
+			Tab("Settings", systemImage: "gear") {
+				NavigationStack {
+					SettingsScreen()
+				}
+			}
         }
     }
 }

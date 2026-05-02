@@ -65,18 +65,25 @@ struct RepoListScreen: View {
         }
     }
     
-    func loadRepos() async {
-        loadState = .loading
-        do {
-            let initialRepos = try await GitHubAPI.fetchRepos(for: username, page: 1)
-            repos = initialRepos
-            currentPage = 1
-            hasMorePages = initialRepos.count >= 30
-            loadState = .loaded(())
-        } catch {
-            loadState = .error(error.localizedDescription)
-        }
-    }
+	func loadRepos() async {
+		loadState = .loading
+		print("Auth token: \(GitHubAPI.authToken != nil ? "set" : "nil")")
+		do {
+			let initialRepos: [GitHubRepo]
+			if GitHubAPI.authToken != nil {
+				initialRepos = try await GitHubAPI.fetchMyRepos(page: 1)
+			} else {
+				initialRepos = try await GitHubAPI.fetchRepos(for: username, page: 1)
+			}
+			repos = initialRepos
+			currentPage = 1
+			hasMorePages = initialRepos.count >= 30
+			loadState = .loaded(())
+			print("Auth token: \(GitHubAPI.authToken != nil), repos loaded: \(initialRepos.count)")
+		} catch {
+			loadState = .error(error.localizedDescription)
+		}
+	}
     
     func loadMore() async {
         isLoadingMore = true

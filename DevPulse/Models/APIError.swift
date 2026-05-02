@@ -8,12 +8,13 @@
 import Foundation
 
 enum APIError: LocalizedError {
-    case invalidURL
-    case invalidResponse
-    case notFound
-    case rateLimited
-    case serverError(Int)
-    case decodingError
+	case invalidURL
+	case invalidResponse
+	case notFound
+	case rateLimited
+	case serverError(Int)
+	case decodingError
+	case unauthorized
     
     var errorDescription: String? {
         switch self {
@@ -23,6 +24,7 @@ enum APIError: LocalizedError {
         case .rateLimited: "Rate limit exceeded. Try again later"
         case .serverError(let code): "Server error (\(code))"
         case .decodingError : "Failed to parse response"
+		case .unauthorized: "Unauthorized"
         }
     }
 }

@@ -12,6 +12,11 @@ struct DevPulseApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+				.onAppear {
+					if let token = KeychainHelper.load(key: "github_token") {
+						GitHubAPI.authToken = token
+					}
+				}
         }
     }
 }
