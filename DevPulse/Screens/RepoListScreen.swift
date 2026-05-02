@@ -73,7 +73,6 @@ struct RepoListScreen: View {
     
     func loadRepos(forceRefresh: Bool = false) async {
 		loadState = .loading
-		print("Auth token: \(GitHubAPI.authToken != nil ? "set" : "nil")")
 		do {
 			let initialRepos: [GitHubRepo]
 			if GitHubAPI.authToken != nil {
@@ -85,7 +84,6 @@ struct RepoListScreen: View {
 			currentPage = 1
 			hasMorePages = initialRepos.count >= 30
 			loadState = .loaded(())
-			print("Auth token: \(GitHubAPI.authToken != nil), repos loaded: \(initialRepos.count)")
 		} catch {
 			loadState = .error(error.localizedDescription)
 		}

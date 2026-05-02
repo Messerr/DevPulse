@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ProfileScreen: View {
     let username: String
-    @State private var user: GitHubUser?
     @State private var loadState: LoadState<ProfileData> = .idle
     
     var body: some View {
@@ -58,9 +57,9 @@ struct ProfileScreen: View {
         loadState = .loading
         
         do {
-            async let userRequest = GitHubAPI.fetchUser(username)
-            async let reposRequest = GitHubAPI.fetchRepos(for: username)
-            async let eventsRequest = GitHubAPI.fetchEvents(for: username)
+            async let userRequest = GitHubAPI.fetchUser(username, forceRefresh: forceRefresh)
+            async let reposRequest = GitHubAPI.fetchRepos(for: username, forceRefresh: forceRefresh)
+            async let eventsRequest = GitHubAPI.fetchEvents(for: username, forceRefresh: forceRefresh)
             
             let user = try await userRequest
             let repos = try? await reposRequest

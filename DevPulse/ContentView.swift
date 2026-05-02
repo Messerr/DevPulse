@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("github_username") private var username = ""
-    @State private var showOnboarding = false
     
     var body: some View {
         if username.isEmpty {
