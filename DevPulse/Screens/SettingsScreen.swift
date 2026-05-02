@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SettingsScreen: View {
+    @Binding var username: String
 	@State private var token: String = ""
 	@State private var isAuthenticated = false
 	
@@ -38,6 +39,12 @@ struct SettingsScreen: View {
 					Text("No token set.")
 				}
 			}
+            
+            Section {
+                Button("Switch User", role: .destructive) {
+                    username = ""
+                }
+            }
 		}
 		.onAppear {
 			if let saved = KeychainHelper.load(key: "github_token") {
@@ -49,5 +56,7 @@ struct SettingsScreen: View {
 }
 
 #Preview {
-    SettingsScreen()
+    @Previewable @State var username = ""
+    
+    SettingsScreen(username: $username)
 }

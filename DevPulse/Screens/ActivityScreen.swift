@@ -41,14 +41,14 @@ struct ActivityScreen: View {
 			await loadEvents()
 		}
 		.refreshable {
-			await loadEvents()
+			await loadEvents(forceRefresh: true)
 		}
     }
 	
-	func loadEvents() async {
+    func loadEvents(forceRefresh: Bool = false) async {
 		loadState = .loading
 		do {
-			events = try await GitHubAPI.fetchEvents(for: username)
+            events = try await GitHubAPI.fetchEvents(for: username, forceRefresh: forceRefresh)
 			loadState = .loaded(())
 		} catch {
 			loadState = .error(error.localizedDescription)

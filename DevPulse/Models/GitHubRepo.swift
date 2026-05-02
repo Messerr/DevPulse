@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GitHubRepo: Codable, Identifiable {
+struct GitHubRepo: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let fullName: String
@@ -22,7 +22,7 @@ struct GitHubRepo: Codable, Identifiable {
     let updatedAt: Date
     let owner: Owner
     
-    struct Owner: Codable {
+    struct Owner: Codable, Hashable {
         let login: String
         let avatarUrl: String
     }

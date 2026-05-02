@@ -18,7 +18,11 @@ enum GitHubAPI {
         return d
     }()
     
-    private static func fetch<T: Decodable>(_ path: String) async throws -> T {
+    private static func fetch<T: Decodable>(_ path: String, forceRefresh: Bool = false) async throws -> T {
+        if !forceRefresh, let cached: T = await APICache.shared.get(path) {
+            return cached
+        }
+        
         guard let url = URL(string: baseURL + path) else {
             throw APIError.invalidURL
         }
@@ -45,31 +49,33 @@ enum GitHubAPI {
         }
         
         do {
-            return try decoder.decode(T.self, from: data)
+            let result = try decoder.decode(T.self, from: data)
+            await APICache.shared.set(path, value: result)
+            return result
         } catch {
             throw APIError.decodingError
         }
     }
     
-    static func fetchUser(_ username: String) async throws -> GitHubUser {
-        try await fetch("/users/\(username)")
+    static func fetchUser(_ username: String, forceRefresh: Bool = false) async throws -> GitHubUser {
+        try await fetch("/users/\(username)", forceRefresh: forceRefresh)
     }
     
-	static func fetchMyRepos(page: Int = 1) async throws -> [GitHubRepo] {
-		try await fetch("/user/repos?sort=updated&page=\(page)&per_page=30&affiliation=owner,collaborator,organization_member")
+    static func fetchMyRepos(page: Int = 1, forceRefresh: Bool = false) async throws -> [GitHubRepo] {
+		try await fetch("/user/repos?sort=updated&page=\(page)&per_page=30&affiliation=owner,collaborator,organization_member", forceRefresh: forceRefresh)
 	}
 	
-    static func fetchRepos(for username: String, page: Int = 1) async throws -> [GitHubRepo] {
-        try await fetch("/users/\(username)/repos?sort=updated&page=\(page)&per_page=30")
+    static func fetchRepos(for username: String, page: Int = 1, forceRefresh: Bool = false) async throws -> [GitHubRepo] {
+        try await fetch("/users/\(username)/repos?sort=updated&page=\(page)&per_page=30", forceRefresh: forceRefresh)
     }
 	
-	static func searchUsers(_ query: String) async throws -> [GitHubUserSummary] {
+    static func searchUsers(_ query: String, forceRefresh: Bool = false) async throws -> [GitHubUserSummary] {
 		let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-		let result: GitHubSearchResult = try await fetch("/search/users?q=\(encoded)&per_page=20")
+		let result: GitHubSearchResult = try await fetch("/search/users?q=\(encoded)&per_page=20", forceRefresh: forceRefresh)
 		return result.items
 	}
 	
-	static func fetchEvents(for username: String) async throws -> [GitHubEvent] {
-		try await fetch("/users/\(username)/events?per_page=30")
+    static func fetchEvents(for username: String, forceRefresh: Bool = false) async throws -> [GitHubEvent] {
+		try await fetch("/users/\(username)/events?per_page=30", forceRefresh: forceRefresh)
 	}
 }

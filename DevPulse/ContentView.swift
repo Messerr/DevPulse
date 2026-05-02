@@ -8,35 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    let username = "Messerr"
+    @AppStorage("github_username") private var username = ""
+    @State private var showOnboarding = false
     
     var body: some View {
-        TabView {
-            Tab("Profile", systemImage: "person.circle") {
-                NavigationStack {
-                    ProfileScreen(username: username)
-                }
-            }
-            Tab("Repos", systemImage: "folder") {
-                NavigationStack {
-                    RepoListScreen(username: username)
-                }
-            }
-            Tab("Search", systemImage: "magnifyingglass") {
-                NavigationStack {
-                    SearchScreen()
-                }
-            }
-			Tab("Activity", systemImage: "bolt") {
-				NavigationStack {
-					ActivityScreen(username: username)
-				}
-			}
-			Tab("Settings", systemImage: "gear") {
-				NavigationStack {
-					SettingsScreen()
-				}
-			}
+        if username.isEmpty {
+            OnboardingScreen(username: $username)
+        } else {
+            MainTabView(username: $username)
         }
     }
 }

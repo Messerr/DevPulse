@@ -24,12 +24,15 @@ struct RepoListScreen: View {
                 ScrollView {
                     LazyVStack {
                         ForEach(repos) { repo in
-                            RepoCard(repo: repo)
-                                .onAppear {
-                                    if repo.id == repos.last?.id {
-                                        loadMoreIfNeeded()
-                                    }
+                            NavigationLink(value: repo) {
+                                RepoCard(repo: repo)
+                            }
+                            .buttonStyle(.plain)
+                            .onAppear {
+                                if repo.id == repos.last?.id {
+                                    loadMoreIfNeeded()
                                 }
+                            }
                         }
                         
                         if isLoadingMore {
@@ -46,6 +49,9 @@ struct RepoListScreen: View {
                     }
                     .padding()
                 }
+                .navigationDestination(for: GitHubRepo.self) { repo in
+                    RepoDetailScreen(repo: repo)
+                }
             case .error(let message):
                 ContentUnavailableView {
                     Label("Failed to Load", systemImage: "wifi.exclamationmark")
@@ -61,19 +67,19 @@ struct RepoListScreen: View {
             await loadRepos()
         }
         .refreshable {
-            await loadRepos()
+            await loadRepos(forceRefresh: true)
         }
     }
     
-	func loadRepos() async {
+    func loadRepos(forceRefresh: Bool = false) async {
 		loadState = .loading
 		print("Auth token: \(GitHubAPI.authToken != nil ? "set" : "nil")")
 		do {
 			let initialRepos: [GitHubRepo]
 			if GitHubAPI.authToken != nil {
-				initialRepos = try await GitHubAPI.fetchMyRepos(page: 1)
+				initialRepos = try await GitHubAPI.fetchMyRepos(page: 1, forceRefresh: forceRefresh)
 			} else {
-				initialRepos = try await GitHubAPI.fetchRepos(for: username, page: 1)
+				initialRepos = try await GitHubAPI.fetchRepos(for: username, page: 1, forceRefresh: forceRefresh)
 			}
 			repos = initialRepos
 			currentPage = 1
